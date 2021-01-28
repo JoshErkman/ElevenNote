@@ -21,6 +21,13 @@ namespace ElevenNote.WebAPI.Controllers
             return Ok(notes);
         }
 
+        public IHttpActionResult Get(int id)
+        {
+            NoteService noteService = CreatedNoteService();
+            var note = noteService.GetNoteById(id);
+            return Ok(note);
+        }
+
         //POST
         public IHttpActionResult Post(NoteCreate note)
         {
@@ -35,7 +42,21 @@ namespace ElevenNote.WebAPI.Controllers
             return Ok();  
         }
 
-        // Helper Method
+        //PUT
+        public IHttpActionResult Put(NoteEdit note)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var service = CreatedNoteService();
+
+            if (!service.UpdateNote(note))
+                return InternalServerError();
+
+            return Ok();
+        }
+
+        // Helper Method    
         private NoteService CreatedNoteService()
         {
             var userId = Guid.Parse(User.Identity.GetUserId());
