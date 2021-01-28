@@ -1,0 +1,45 @@
+﻿using ElevenNote.Models;
+using ElevenNote.Services;
+using Microsoft.AspNet.Identity;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Web.Http;
+
+namespace ElevenNote.WebAPI.Controllers
+{
+    [Authorize]
+    public class NoteController : ApiController
+    {
+        //GET
+        public IHttpActionResult Get()
+        {
+            NoteService noteService = CreatedNoteService();
+            var notes = noteService.GetNotes();
+            return Ok(notes);
+        }
+
+        //POST
+        public IHttpActionResult Post(NoteCreate note)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var service = CreatedNoteService();
+
+            if (!service.CreateNote(note))
+                return InternalServerError();
+
+            return Ok();  
+        }
+
+        private NoteService CreatedNoteService()
+        {
+            var userId = Guid.Parse(User.Identity.GetUserId());
+            var noteService = new NoteService(userId);
+            return noteService;
+        }
+    }
+}
